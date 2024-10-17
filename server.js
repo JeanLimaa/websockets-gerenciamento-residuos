@@ -1,8 +1,15 @@
+const express = require('express');
 const WebSocket = require('ws');
+const http = require('http');
 
-const server = new WebSocket.Server({ port: 8080 });
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-server.on('connection', (ws) => {
+const server = http.createServer(app);
+
+const wss = new WebSocket.Server({ server });
+
+wss.on('connection', (ws) => {
   console.log('Cliente conectado');
 
   ws.on('message', (message) => {
@@ -17,4 +24,6 @@ server.on('connection', (ws) => {
   ws.send('Bem-vindo ao servidor WebSocket!');
 });
 
-console.log('Servidor WebSocket rodando na porta 8080');
+server.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
+});
