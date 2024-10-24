@@ -15,12 +15,16 @@ wss.on('connection', (ws) => {
   ws.on('message', (message) => {
     const messageConverted = message.toString('utf-8');
     console.log('Mensagem recebida:', messageConverted);
-    ws.send('Mensagem recebidaa: ' + messageConverted);
+    //ws.send('Mensagem recebidaa: ' + messageConverted);
+    wss.clients.forEach((client) => {
+      if(client.readyState === WebSocket.OPEN) client.send(messageConverted);
+    });
   });
 
   ws.on('close', () => {
     console.log('Cliente desconectado');
   });
+  
 
   ws.send('Bem-vindo ao servidor WebSocket!');
 });
