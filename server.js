@@ -13,8 +13,9 @@ wss.on('connection', (ws) => {
   console.log('Cliente conectado');
 
   ws.on('message', (message) => {
-    console.log('Mensagem recebida:', message);
-    ws.send('Mensagem recebida: ' + message);
+    const messageConverted = message.toString('utf-8');
+    console.log('Mensagem recebida:', messageConverted);
+    ws.send('Mensagem recebidaa: ' + messageConverted);
   });
 
   ws.on('close', () => {
