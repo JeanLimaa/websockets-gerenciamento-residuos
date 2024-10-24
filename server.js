@@ -3,11 +3,23 @@ const WebSocket = require('ws');
 const http = require('http');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
+
+app.use(express.json());
 
 const server = http.createServer(app);
 
 const wss = new WebSocket.Server({ server, path: '/ws' });
+
+app.post('/login', (req, res) => {
+  const { email, password } = req.body;
+  
+  if(email === "teste" && password === "teste") {
+    return res.status(200).send('Login efetuado com sucesso');
+  }
+
+  return res.status(401).send('Credenciais incorretas');
+});
 
 wss.on('connection', (ws) => {
   console.log('Cliente conectado');
