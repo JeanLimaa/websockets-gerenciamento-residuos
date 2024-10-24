@@ -7,7 +7,7 @@ const PORT = process.env.PORT || 3000;
 
 const server = http.createServer(app);
 
-const wss = new WebSocket.Server({ server });
+const wss = new WebSocket.Server({ server, path: '/ws' });
 
 wss.on('connection', (ws) => {
   console.log('Cliente conectado');
@@ -17,7 +17,8 @@ wss.on('connection', (ws) => {
     console.log('Mensagem recebida:', messageConverted);
     //ws.send('Mensagem recebidaa: ' + messageConverted);
     wss.clients.forEach((client) => {
-      if(client.readyState === WebSocket.OPEN) client.send(messageConverted);
+      client.send(messageConverted)
+      //if(client.readyState === WebSocket.OPEN) client.send(messageConverted);
     });
   });
 
