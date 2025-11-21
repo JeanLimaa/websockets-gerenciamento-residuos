@@ -24,25 +24,25 @@ app.get('/', (req, res) => {
 function calculateAverage(arr) {
   if (arr.length === 0) return 0;
   const sum = arr.reduce((acc, val) => acc + val, 0);
-  return sum / arr.length;
+  const avg = sum / arr.length;
+  return Math.round(avg * 100) / 100; // Arredonda para 2 casas decimais
 }
 
 // Função para processar e enviar dados do buffer
 async function processBuffer() {
   console.log('Processando buffer...');
-  
+
+  const promises = [];
+
   for (const [deviceId, data] of dataBuffer.entries()) {
     if (data.temperatures.length === 0) continue;
 
-    // Calcula médias
     const avgTemperature = calculateAverage(data.temperatures);
     const avgHumidity = calculateAverage(data.humidities);
 
-    // Verifica se há mudança no gasLevel (digital)
     const hasGasLevelChange = data.gasLevels.some(val => val !== data.gasLevels[0]);
 
     if (hasGasLevelChange) {
-      // Se houve mudança no gasLevel, salva leituras separadas para cada mudança
       let lastGasLevel = null;
       const readings = [];
 
@@ -58,26 +58,23 @@ async function processBuffer() {
         }
       }
 
-      // Envia cada leitura
-      for (const reading of readings) {
-        await sendReadingToBackend(reading);
-      }
+      promises.push(...readings.map(reading => sendReadingToBackend(reading)));
     } else {
-      // Se não houve mudança, envia apenas a média
       const reading = {
         deviceId,
         temperature: avgTemperature,
         humidity: avgHumidity,
         gasLevel: data.gasLevels[0]
       };
-      
-      await sendReadingToBackend(reading);
+      promises.push(sendReadingToBackend(reading));
     }
 
-    // Limpa o buffer deste dispositivo
     dataBuffer.delete(deviceId);
   }
+
+  await Promise.all(promises);
 }
+
 
 // Função para enviar dados ao backend
 async function sendReadingToBackend(reading) {
